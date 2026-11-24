@@ -1,0 +1,6 @@
+{
+  "name": "SDA Collections",
+  "description": "Indian jewellery, sarees and designer fashion curated for every special occasion. Shop Smart... Be Stylish...",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

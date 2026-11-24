@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-cinzel: 'Cinzel', serif;
+  --font-playfair: 'Playfair Display', serif;
+  --font-poppins: 'Poppins', sans-serif;
+
+  --color-luxury-black: #120D0B;
+  --color-charcoal: #211713;
+  --color-metallic-gold: #D4AF62;
+  --color-gold-light: #F3E5AB;
+  --color-gold-dark: #AA8230;
+  --color-royal-maroon: #65102F;
+  --color-magenta: #D41472;
+  --color-ivory: #F8F1E4;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #F8F1E4;
+  color: #120D0B;
+  overflow-x: hidden;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Custom gold gradient text */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #F3E5AB 0%, #D4AF62 50%, #AA8230 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border {
+  border-color: #D4AF62;
+}
+
+.gold-bg {
+  background-color: #D4AF62;
+}

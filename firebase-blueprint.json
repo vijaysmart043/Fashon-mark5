@@ -1,0 +1,539 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Customer or staff profile stored in Firestore",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "fullName": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 160 },
+        "phoneNumber": { "type": "string", "maxLength": 24 },
+        "role": { "type": "string", "enum": ["customer", "super_admin", "order_manager", "customer_support", "delivery_manager", "inventory_manager", "product_manager"] },
+        "accountStatus": { "type": "string", "enum": ["active", "suspended"] },
+        "emailVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "fullName", "email", "role", "accountStatus", "emailVerified"]
+    },
+    "AdminMember": {
+      "title": "AdminMember",
+      "description": "Authorized staff role record",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "maxLength": 160 },
+        "fullName": { "type": "string", "maxLength": 120 },
+        "role": { "type": "string", "enum": ["super_admin", "order_manager", "customer_support", "delivery_manager", "inventory_manager", "product_manager"] },
+        "active": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "active"]
+    },
+    "Address": {
+      "title": "Address",
+      "description": "Customer delivery address",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "fullName": { "type": "string", "maxLength": 120 },
+        "mobile": { "type": "string", "maxLength": 16, "pattern": "^[0-9+\\- ]{10,16}$" },
+        "addressLine": { "type": "string", "maxLength": 300 },
+        "city": { "type": "string", "maxLength": 80 },
+        "state": { "type": "string", "maxLength": 80 },
+        "pincode": { "type": "string", "maxLength": 10, "pattern": "^[0-9]{6}$" },
+        "addressType": { "type": "string", "enum": ["Home", "Work", "Other"] },
+        "isDefault": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "fullName", "mobile", "addressLine", "city", "state", "pincode", "addressType", "isDefault"]
+    },
+    "Cart": {
+      "title": "Cart",
+      "description": "Authenticated customer shopping bag",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "items": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items"]
+    },
+    "Wishlist": {
+      "title": "Wishlist",
+      "description": "Customer saved product IDs",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "productIds": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "productIds"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product category definition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 80 },
+        "slug": { "type": "string", "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 500 },
+        "image": { "type": "string", "maxLength": 500 },
+        "itemCount": { "type": "number" },
+        "active": { "type": "boolean" },
+        "returnEligible": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "slug", "active"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Storefront product record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 160 },
+        "slug": { "type": "string", "maxLength": 160 },
+        "category": { "type": "string", "maxLength": 80 },
+        "type": { "type": "string", "enum": ["jewellery", "saree", "dress", "fashion"] },
+        "basePrice": { "type": "number" },
+        "discount": { "type": "number" },
+        "active": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "bestseller": { "type": "boolean" },
+        "newArrival": { "type": "boolean" },
+        "returnable": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "slug", "category", "type", "basePrice", "active"]
+    },
+    "ProductVariant": {
+      "title": "ProductVariant",
+      "description": "Variant SKU inventory record",
+      "type": "object",
+      "properties": {
+        "sku": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "productId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "colour": { "type": "string", "maxLength": 80 },
+        "size": { "type": "string", "maxLength": 80 },
+        "weight": { "type": "string", "maxLength": 40 },
+        "stock": { "type": "number" },
+        "price": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sku", "productId", "stock", "price"]
+    },
+    "MetalRate": {
+      "title": "MetalRate",
+      "description": "Gold and silver rate per gram",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "metal": { "type": "string", "maxLength": 32 },
+        "purity": { "type": "string", "maxLength": 32 },
+        "ratePerGram": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 8 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "metal", "purity", "ratePerGram", "currency"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Promotional coupon record with optional usage and expiry rules",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "maxLength": 32, "pattern": "^[A-Z0-9_\\-]+$" },
+        "discountPercent": { "type": "number" },
+        "minOrderAmount": { "type": "number" },
+        "maxDiscountAmount": { "type": "number" },
+        "usageCount": { "type": "number" },
+        "usageLimit": { "type": "number" },
+        "expiresAt": { "type": "string", "maxLength": 40 },
+        "description": { "type": "string", "maxLength": 200 },
+        "active": { "type": "boolean" }
+      },
+      "required": ["code", "discountPercent", "active"]
+    },
+    "HeroBanner": {
+      "title": "HeroBanner",
+      "description": "Storefront hero and promotional banner slide",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "maxLength": 160 },
+        "subtitle": { "type": "string", "maxLength": 300 },
+        "badge": { "type": "string", "maxLength": 80 },
+        "image": { "type": "string", "maxLength": 500 },
+        "ctaPrimary": { "type": "string", "maxLength": 60 },
+        "ctaSecondary": { "type": "string", "maxLength": 60 },
+        "targetTab": { "type": "string", "maxLength": 40 },
+        "displayOrder": { "type": "number" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "subtitle", "image", "displayOrder", "active"]
+    },
+    "StockReservation": {
+      "title": "StockReservation",
+      "description": "Temporary checkout inventory reservation window",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "items": { "type": "array" },
+        "status": { "type": "string", "enum": ["active", "converted", "expired", "released"] },
+        "expiresAt": { "type": "string", "maxLength": 64 },
+        "orderId": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "items", "status", "expiresAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app customer notification for orders, payments, shipments, returns, and refunds",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["order_confirmation", "payment_result", "order_status_update", "shipment_update", "return_update", "refund_update", "account_notification"] },
+        "title": { "type": "string", "maxLength": 160 },
+        "message": { "type": "string", "maxLength": 600 },
+        "orderNumber": { "type": "string", "maxLength": 32 },
+        "read": { "type": "boolean" },
+        "createdByUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "type", "title", "message", "read"]
+    },
+    "EmailLog": {
+      "title": "EmailLog",
+      "description": "Resend transactional email delivery request log without secrets",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "requestId": { "type": "string", "maxLength": 64 },
+        "resendEmailId": { "type": "string", "maxLength": 128 },
+        "idempotencyKey": { "type": "string", "maxLength": 250 },
+        "templateType": { "type": "string", "enum": ["welcome", "email_verification", "password_reset", "order_confirmation", "payment_status", "invoice_notification", "shipment_update", "return_update", "refund_update"] },
+        "recipientEmail": { "type": "string", "maxLength": 160 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "orderNumber": { "type": "string", "maxLength": 32 },
+        "status": { "type": "string", "enum": ["queued", "sent_to_provider", "delivered", "delivery_delayed", "bounced", "complained", "failed", "skipped_unconfigured"] },
+        "lastEvent": { "type": "string", "maxLength": 64 },
+        "statusNote": { "type": "string", "maxLength": 400 },
+        "errorCode": { "type": "string", "maxLength": 64 },
+        "errorMessage": { "type": "string", "maxLength": 300 },
+        "createdByUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "requestId", "idempotencyKey", "templateType", "recipientEmail", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase order with payment and delivery tracking metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "customerEmail": { "type": "string", "maxLength": 160 },
+        "orderNumber": { "type": "string", "maxLength": 32, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "couponCode": { "type": "string", "maxLength": 32 },
+        "shippingFee": { "type": "number" },
+        "gstAmount": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Confirmed & Packed", "Processing", "Shipped", "Out for Delivery", "Delivered", "Delivery Failed", "Returned to Sender", "Return Requested", "Return Approved", "Refund Initiated", "Refunded", "Cancelled"] },
+        "paymentMethod": { "type": "string", "enum": ["upi", "card", "netbanking", "wallet", "cod", "UPI", "Card", "COD"] },
+        "paymentStatus": { "type": "string", "enum": ["Successful", "Pending COD", "Failed", "Refunded", "Partially Refunded"] },
+        "shippingAddress": { "type": "object" },
+        "shipmentId": { "type": "string", "maxLength": 64 },
+        "deliveredAt": { "type": "string", "maxLength": 64 },
+        "stockReserved": { "type": "boolean" },
+        "stockRestored": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "orderNumber", "items", "total", "status", "paymentMethod", "paymentStatus"]
+    },
+    "PaymentRecord": {
+      "title": "PaymentRecord",
+      "description": "Simulated payment transaction record",
+      "type": "object",
+      "properties": {
+        "paymentId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "maxLength": 32 },
+        "status": { "type": "string", "enum": ["Successful", "Pending COD", "Failed", "Refunded"] },
+        "transactionRef": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["paymentId", "orderId", "userId", "amount", "method", "status", "transactionRef"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Simulated GST tax invoice record",
+      "type": "object",
+      "properties": {
+        "invoiceNumber": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "grandTotal": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["invoiceNumber", "orderId", "userId", "grandTotal"]
+    },
+    "CourierProvider": {
+      "title": "CourierProvider",
+      "description": "Store-configured courier partner metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 80 },
+        "trackingUrlTemplate": { "type": "string", "maxLength": 300 },
+        "defaultEstimatedDays": { "type": "number" },
+        "active": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "defaultEstimatedDays", "active"]
+    },
+    "Shipment": {
+      "title": "Shipment",
+      "description": "Store-updated shipment tracking record linked to a customer order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderNumber": { "type": "string", "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "courierId": { "type": "string", "maxLength": 64 },
+        "courierName": { "type": "string", "maxLength": 80 },
+        "trackingNumber": { "type": "string", "maxLength": 80 },
+        "trackingUrl": { "type": "string", "maxLength": 300 },
+        "shippingDate": { "type": "string", "maxLength": 40 },
+        "estimatedDeliveryDate": { "type": "string", "maxLength": 40 },
+        "actualDeliveryDate": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "enum": ["Shipment Created", "Ready for Pickup", "Picked Up", "In Transit", "Reached Destination Hub", "Out for Delivery", "Delivered", "Delivery Attempt Failed", "Returned to Sender", "Shipment Cancelled"] },
+        "deliveryNotes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "orderNumber", "userId", "courierName", "status"]
+    },
+    "ShipmentEvent": {
+      "title": "ShipmentEvent",
+      "description": "Timestamped store-updated milestone in a shipment timeline",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "shipmentId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "status": { "type": "string", "enum": ["Shipment Created", "Ready for Pickup", "Picked Up", "In Transit", "Reached Destination Hub", "Out for Delivery", "Delivered", "Delivery Attempt Failed", "Returned to Sender", "Shipment Cancelled"] },
+        "location": { "type": "string", "maxLength": 120 },
+        "notes": { "type": "string", "maxLength": 400 },
+        "updatedByUid": { "type": "string", "maxLength": 128 },
+        "updatedByName": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "shipmentId", "userId", "status", "updatedByUid"]
+    },
+    "ReturnPolicyConfig": {
+      "title": "ReturnPolicyConfig",
+      "description": "Store-configurable settings including return policy and global store configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id"]
+    },
+    "ReturnRequest": {
+      "title": "ReturnRequest",
+      "description": "Customer return request tied to a delivered order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "returnNumber": { "type": "string", "maxLength": 32, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderNumber": { "type": "string", "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "items": { "type": "array" },
+        "requestedRefundAmount": { "type": "number" },
+        "reason": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 800 },
+        "imageUrls": { "type": "array" },
+        "status": { "type": "string", "enum": ["Requested", "Under Review", "Approved", "Rejected", "Pickup Pending", "Item Received", "Inspection Pending", "Inspection Passed", "Inspection Failed", "Refund Initiated", "Refunded", "Closed"] },
+        "inspectionNotes": { "type": "string", "maxLength": 500 },
+        "adminNotes": { "type": "string", "maxLength": 500 },
+        "receivedAt": { "type": "string", "maxLength": 64 },
+        "refundId": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "returnNumber", "orderId", "orderNumber", "userId", "items", "requestedRefundAmount", "reason", "status"]
+    },
+    "RefundRecord": {
+      "title": "RefundRecord",
+      "description": "Simulated refund workflow record linked to a return or cancelled order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "refundNumber": { "type": "string", "maxLength": 32, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderNumber": { "type": "string", "maxLength": 32 },
+        "returnId": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "originalPaymentMethod": { "type": "string", "maxLength": 32 },
+        "eligiblePaidAmount": { "type": "number" },
+        "refundAmount": { "type": "number" },
+        "isSimulated": { "type": "boolean" },
+        "refundModeNote": { "type": "string", "maxLength": 240 },
+        "status": { "type": "string", "enum": ["Requested", "Approved", "Processing", "Completed", "Failed", "Rejected"] },
+        "referenceId": { "type": "string", "maxLength": 80 },
+        "adminNotes": { "type": "string", "maxLength": 400 },
+        "processedByUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "refundNumber", "orderId", "userId", "originalPaymentMethod", "eligiblePaidAmount", "refundAmount", "isSimulated", "status"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable operational and security audit trail across all admin and customer mutations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "entityType": { "type": "string", "enum": ["shipment", "courier", "return", "refund", "policy", "order", "product", "variant", "category", "metalRate", "coupon", "staff", "storeSettings", "banner", "notification", "email", "auth"] },
+        "entityId": { "type": "string", "maxLength": 64 },
+        "action": { "type": "string", "maxLength": 120 },
+        "actorUid": { "type": "string", "maxLength": 128 },
+        "actorRole": { "type": "string", "maxLength": 40 },
+        "actorEmail": { "type": "string", "maxLength": 160 },
+        "beforeValues": { "type": "object" },
+        "afterValues": { "type": "object" },
+        "correlationId": { "type": "string", "maxLength": 64 },
+        "reason": { "type": "string", "maxLength": 300 },
+        "details": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "entityType", "entityId", "action", "actorUid"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Private customer and staff user profiles"
+    },
+    "admins/{adminId}": {
+      "schema": "AdminMember",
+      "description": "Role lookup table for store operations staff"
+    },
+    "addresses/{addressId}": {
+      "schema": "Address",
+      "description": "Saved customer delivery addresses"
+    },
+    "carts/{userId}": {
+      "schema": "Cart",
+      "description": "Authenticated customer shopping bags"
+    },
+    "wishlists/{userId}": {
+      "schema": "Wishlist",
+      "description": "Authenticated customer wishlist product references"
+    },
+    "categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Product categories and return eligibility defaults"
+    },
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Storefront products catalogue"
+    },
+    "productVariants/{variantSku}": {
+      "schema": "ProductVariant",
+      "description": "Variant-level stock and pricing"
+    },
+    "metalRates/{rateId}": {
+      "schema": "MetalRate",
+      "description": "Daily gold and silver rates"
+    },
+    "coupons/{couponId}": {
+      "schema": "Coupon",
+      "description": "Promotional discount codes"
+    },
+    "heroBanners/{bannerId}": {
+      "schema": "HeroBanner",
+      "description": "Admin-managed homepage and promotional banners"
+    },
+    "stockReservations/{reservationId}": {
+      "schema": "StockReservation",
+      "description": "Temporary checkout stock reservations"
+    },
+    "notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Persisted customer in-app notifications"
+    },
+    "emailLogs/{emailLogId}": {
+      "schema": "EmailLog",
+      "description": "Resend transactional email delivery request IDs and statuses"
+    },
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders linked to shipments, returns, and refunds"
+    },
+    "payments/{paymentId}": {
+      "schema": "PaymentRecord",
+      "description": "Simulated payment transaction ledger"
+    },
+    "invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Simulated tax invoices linked to orders"
+    },
+    "courierProviders/{courierId}": {
+      "schema": "CourierProvider",
+      "description": "Admin-managed courier partner list"
+    },
+    "shipments/{shipmentId}": {
+      "schema": "Shipment",
+      "description": "Store-updated shipment tracking records"
+    },
+    "shipments/{shipmentId}/events/{eventId}": {
+      "schema": "ShipmentEvent",
+      "description": "Chronological shipment tracking milestones"
+    },
+    "storeSettings/{settingId}": {
+      "schema": "ReturnPolicyConfig",
+      "description": "Store-level configurable settings (return_policy and store_config)"
+    },
+    "returnRequests/{returnId}": {
+      "schema": "ReturnRequest",
+      "description": "Customer return requests and admin inspection records"
+    },
+    "refunds/{refundId}": {
+      "schema": "RefundRecord",
+      "description": "Simulated refund records linked to approved returns or cancelled orders"
+    },
+    "auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Immutable operational and security audit logs"
+    }
+  }
+}
